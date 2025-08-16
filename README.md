@@ -1,50 +1,41 @@
-Silent Disco LAN Broadcaster
+Here you go — the whole thing inside a Markdown code block so you can drop it straight into a `README.md`:
 
-Ultra-low-latency local only audio streaming for silent discos, powered by OpenWrt + ffmpeg + multicast RTP.
+```markdown
+# Silent Disco LAN Broadcaster
+
+Ultra-low-latency **local-only** audio streaming for silent discos, powered by **OpenWrt + ffmpeg + multicast RTP**.  
 No cloud servers, no Internet hop — everything stays on your LAN for perfect sync.
 
-Quick Start
+---
 
-DJs: `./silentdisco.fish`
+## Quick Start
 
+### DJs
+```bash
+./silentdisco.fish
+```
 This sets up the broadcast and the landing page.
 
-Users:
+### Users
+1. Join the Silent Disco Wi-Fi.  
+2. Scan the QR code.  
+3. VLC (or another player) opens and plays `dj.dance`.
 
-Join the Silent Disco Wi-Fi.
+That’s it: **scan, press play, start dancing.**
 
-Scan the QR code provided.
+---
 
-Open VLC (or another supported player).
+## Why It Works
 
-Enter dj.dance to start listening.
+- One broadcast, unlimited listeners — all in sync.  
+- LAN-only: no cloud, no lag.  
+- Works on Android, iOS, Windows, macOS, Linux.  
 
-That’s it. DJs press play, users hear the set in sync.
+---
 
-Features
+## Supported Players
 
-LAN only — zero Internet dependency.
-
-Multicast — one broadcast, hundreds of listeners, all in perfect sync.
-
-Cross-platform — Android, iOS, Windows, macOS, Linux.
-
-Plug and play — DJs and guests just scan a QR and go.
-
-Supported Players
-
-Desktop: VLC, mpv, ffplay, Kodi
-
-Android: VLC, MX Player, BSPlayer, Kodi
-
-iOS: VLC, nPlayer, OPlayer, Infuse
-
-Why This Works
-
-No server bills.
-
-No latency drift.
-
-No reliance on Internet.
-
-Just music, sync, and simplicity.
+- **Desktop**: VLC, mpv  
+- **Android**: VLC, MX Player  
+- **iOS**: VLC, nPlayer, Infuse  
+```

@@ -3,22 +3,48 @@ Silent Disco LAN Broadcaster
 Ultra-low-latency local only audio streaming for silent discos, powered by OpenWrt + ffmpeg + multicast RTP.
 No cloud servers, no Internet hop — everything stays on your LAN for perfect sync.
 
-How It Works
+Quick Start
 
-DJ plugs in: Mixxx (Linux) / Serato (Windows) → ffmpeg sends RTP multicast.
+DJs: `./silentdisco.fish`
 
-Router hosts landing page: http://dj.dance
+This sets up the broadcast and the landing page.
 
-Browsers → see instructions and QR codes.
+Users:
 
-Media players (VLC/mpv/etc) → auto-fetch stream.m3u and join the stream.
+Join the Silent Disco Wi-Fi.
 
-Guests join Wi-Fi: Scan the QR → open VLC/mpv → instant silent disco.
+Scan the QR code provided.
 
-Setup
+Open VLC (or another supported player).
 
-Flash your router with OpenWrt (GL.iNet Slate AX recommended).
+Enter dj.dance to start listening.
 
-Copy disco.fish onto your router or laptop.
+That’s it. DJs press play, users hear the set in sync.
 
-Run:
+Features
+
+LAN only — zero Internet dependency.
+
+Multicast — one broadcast, hundreds of listeners, all in perfect sync.
+
+Cross-platform — Android, iOS, Windows, macOS, Linux.
+
+Plug and play — DJs and guests just scan a QR and go.
+
+Supported Players
+
+Desktop: VLC, mpv, ffplay, Kodi
+
+Android: VLC, MX Player, BSPlayer, Kodi
+
+iOS: VLC, nPlayer, OPlayer, Infuse
+
+Why This Works
+
+No server bills.
+
+No latency drift.
+
+No reliance on Internet.
+
+Just music, sync, and simplicity.

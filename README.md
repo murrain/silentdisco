@@ -1,6 +1,3 @@
-Here you go — the whole thing inside a Markdown code block so you can drop it straight into a `README.md`:
-
-```markdown
 # Silent Disco LAN Broadcaster
 
 Ultra-low-latency **local-only** audio streaming for silent discos, powered by **OpenWrt + ffmpeg + multicast RTP**.  

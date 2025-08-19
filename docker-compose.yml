@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  web:
+    build: ./web
+    container_name: silentdisco-web
+    network_mode: host
+    environment:
+      GROUP: ${GROUP:-239.255.0.1}
+      PORT: ${PORT:-1234}
+    volumes:
+      - ./site:/opt/silentdisco/site:ro
+      - ./webdata:/srv/http/dj.dance
+    restart: unless-stopped
+
+  streamer:
+    build: ./streamer
+    container_name: silentdisco-streamer
+    network_mode: host
+    environment:
+      GROUP: ${GROUP:-239.255.0.1}
+      PORT: ${PORT:-1234}
+      BITRATE: ${BITRATE:-192k}
+      PULSE_SOURCE: ${PULSE_SOURCE:?set your PulseAudio source (monitor) name}
+      PULSE_SERVER: unix:/run/user/${UID}/pulse/native
+    volumes:
+      - /run/user/${UID}/pulse:/run/user/${UID}/pulse
+    depends_on:
+      - web
+    restart: unless-stopped

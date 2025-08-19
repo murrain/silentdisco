@@ -1,38 +1,29 @@
-# Silent Disco LAN Broadcaster
+# Silent Disco LAN Broadcaster (Docker)
 
-Ultra-low-latency **local-only** audio streaming for silent discos, powered by **OpenWrt + ffmpeg + multicast RTP**.  
-No cloud servers, no Internet hop — everything stays on your LAN for perfect sync.
-
----
+Local-only multicast audio for silent discos. No cloud, tight sync.
 
 ## Quick Start
-
-### DJs
+1) Generate `.env` with your UID and Pulse source:
 ```bash
-./silentdisco.fish
+make env
+# edit .env to set PULSE_SOURCE if not auto-detected
 ```
-This sets up the broadcast and the landing page.
+2) Launch:
+```bash
+make up
+```
+3) Point router DNS: `dj.dance` -> your host LAN IP.
 
-### Users
-1. Join the Silent Disco Wi-Fi.  
-2. Scan the QR code.  
-3. VLC (or another player) opens and plays `dj.dance`.
+- Users open `http://dj.dance/` in a browser (instructions + QR), or just type `dj.dance` in VLC/mpv.
+- Media players that fetch `http://dj.dance/` auto-receive the playlist and join the stream.
 
-That’s it: **scan, press play, start dancing.**
-
----
-
-## Why It Works
-
-- One broadcast, unlimited listeners — all in sync.  
-- LAN-only: no cloud, no lag.  
-- Works on Android, iOS, Windows, macOS, Linux.  
-
----
-
-## Supported Players
-
-- **Desktop**: VLC, mpv  
-- **Android**: VLC, MX Player  
-- **iOS**: VLC, nPlayer, Infuse  
+## Useful
+- Change stream: edit `.env` (GROUP/PORT/BITRATE), `make up` again.
+- Stop:
+```bash
+make down
+```
+- Tail logs:
+```bash
+make logs
 ```

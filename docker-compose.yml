@@ -1,31 +1,43 @@
+# docker-compose.yml
+# Silent Disco (LAN-only) — web landing + RTP multicast streamer
+# Works offline when images are prebuilt and cached (see Makefile).
+
 services:
   web:
-    build: ./web
+    image: silentdisco-web:offline         # prebuilt/tagged for offline use
+    build: ./web                           # still buildable when online
     container_name: silentdisco-web
-    network_mode: host
+    network_mode: host                     # serve on host port 80
     environment:
+      # overridable via .env
       GROUP: ${GROUP:-239.255.0.1}
       PORT: ${PORT:-1234}
     volumes:
-      - ./site:/opt/silentdisco/site:ro
-      - ./webdata:/srv/http
+      - ./site:/opt/silentdisco/site:ro    # your pretty index.html template
+      - ./webdata:/srv/http                # generated QR/playlist + served files
     restart: unless-stopped
 
   streamer:
+    image: silentdisco-streamer:offline    # prebuilt/tagged for offline use
     build: ./streamer
     container_name: silentdisco-streamer
-    network_mode: host
-    user: "${UID}:${UID}"                     # run as your user (Pulse socket owner)
+    network_mode: host                     # sender must bind the real NIC
+    user: "${UID}:${UID}"                  # must match your desktop user (Pulse owner)
     environment:
       GROUP: ${GROUP:-239.255.0.1}
       PORT: ${PORT:-1234}
       BITRATE: ${BITRATE:-192k}
-      PULSE_SOURCE: ${PULSE_SOURCE:?set your PulseAudio source (monitor) name}
-      PULSE_SERVER: unix:/run/user/${UID}/pulse/native
-      # optional: pin a specific local IP; otherwise entrypoint auto-detects
+      PULSE_SOURCE: ${PULSE_SOURCE:?set your PulseAudio source (e.g., MixxxMaster.monitor)}
+      PULSE_SERVER: "unix:/run/user/${UID}/pulse/native"
+      # Optional: pin source NIC if auto-detect ever fails
       # LOCALADDR: 192.168.8.152
+      # Optional: Pulse cookie path inside container (see volume below)
+      PULSE_COOKIE: /pulse-cookie
     volumes:
+      # Pulse socket directory (host -> container). Requires matching user/UID.
       - /run/user/${UID}/pulse:/run/user/${UID}/pulse
+      # Pulse cookie (improves auth reliability). Define PULSE_COOKIE_PATH in .env
+      - ${PULSE_COOKIE_PATH:-$HOME/.config/pulse/cookie}:/pulse-cookie:ro
     depends_on:
       - web
     restart: unless-stopped

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   web:
     build: ./web
@@ -10,19 +8,22 @@ services:
       PORT: ${PORT:-1234}
     volumes:
       - ./site:/opt/silentdisco/site:ro
-      - ./webdata:/srv/http/dj.dance
+      - ./webdata:/srv/http
     restart: unless-stopped
 
   streamer:
     build: ./streamer
     container_name: silentdisco-streamer
     network_mode: host
+    user: "${UID}:${UID}"                     # run as your user (Pulse socket owner)
     environment:
       GROUP: ${GROUP:-239.255.0.1}
       PORT: ${PORT:-1234}
       BITRATE: ${BITRATE:-192k}
       PULSE_SOURCE: ${PULSE_SOURCE:?set your PulseAudio source (monitor) name}
       PULSE_SERVER: unix:/run/user/${UID}/pulse/native
+      # optional: pin a specific local IP; otherwise entrypoint auto-detects
+      # LOCALADDR: 192.168.8.152
     volumes:
       - /run/user/${UID}/pulse:/run/user/${UID}/pulse
     depends_on:

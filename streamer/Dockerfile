@@ -1,10 +1,23 @@
-FROM debian:stable-slim
+    # streamer/Dockerfile
+    FROM debian:stable-slim
 
-RUN apt-get update &&     apt-get install -y --no-install-recommends ffmpeg pulseaudio-utils ca-certificates &&     rm -rf /var/lib/apt/lists/*
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        ffmpeg pulseaudio-utils iproute2 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+    # add entrypoint
+    COPY entrypoint.sh /entrypoint.sh
+    RUN chmod +x /entrypoint.sh
 
-ENV GROUP=239.255.0.1 PORT=1234 BITRATE=192k     PULSE_SOURCE=     PULSE_SERVER=
+    ENTRYPOINT ["/entrypoint.sh"]# streamer/Dockerfile
+    FROM debian:stable-slim
 
-ENTRYPOINT ["/entrypoint.sh"]
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        ffmpeg pulseaudio-utils iproute2 procps ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+    # add entrypoint
+    COPY entrypoint.sh /entrypoint.sh
+    RUN chmod +x /entrypoint.sh
+
+    ENTRYPOINT ["/entrypoint.sh"]

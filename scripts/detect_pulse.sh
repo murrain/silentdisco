@@ -14,15 +14,21 @@ echo "GROUP=${GROUP_DEFAULT}" >> "${OUT_FILE}"
 echo "PORT=${PORT_DEFAULT}" >> "${OUT_FILE}"
 echo "BITRATE=${BITRATE_DEFAULT}" >> "${OUT_FILE}"
 
-# Try to detect a PulseAudio monitor source
-SRC="$(pactl list short sources 2>/dev/null | awk '{print $2}' | grep -E 'monitor$' | head -n1 || true)"
-if [[ -z "${SRC}" ]]; then
-  echo "PULSE_SOURCE=" >> "${OUT_FILE}"
-  echo "Could not auto-detect a PulseAudio monitor source."
-  echo "Fill PULSE_SOURCE in .env (e.g., alsa_output.pci-0000_00_1f.3.analog-stereo.monitor)"
+# Prefer the dedicated sink if present
+if pactl list short sources 2>/dev/null | awk '{print $2}' | grep -Fxq "MixxxMaster.monitor"; then
+  SRC="MixxxMaster.monitor"
 else
-  echo "PULSE_SOURCE=${SRC}" >> "${OUT_FILE}"
-  echo "Detected PulseAudio source: ${SRC}"
+  # Fallback: first monitor source
+  SRC="$(pactl list short sources 2>/dev/null | awk '{print $2}' | grep -E 'monitor$' | head -n1 || true)"
 fi
 
-echo "Wrote ${OUT_FILE} with defaults. Edit if needed."
+if [[ -z "${SRC:-}" ]]; then
+  echo "PULSE_SOURCE=" >> "${OUT_FILE}"
+  echo "Could not auto-detect a PulseAudio monitor source."
+  echo "Run scripts/setup_mixxx_sink.sh, then re-run: make env"
+else
+  echo "PULSE_SOURCE=${SRC}" >> "${OUT_FILE}"
+  echo "Using PulseAudio source: ${SRC}"
+fi
+
+echo "Wrote ${OUT_FILE}. Review it if needed."

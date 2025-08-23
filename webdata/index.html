@@ -70,12 +70,12 @@
 
           <div class="section-title" style="margin-top:16px">2) Open this stream</div>
           <p>Scan the QR → choose your player app, or open your player’s “Network Stream” and paste:</p>
-          <div class="uri" id="uri">udp://@239.255.0.1:1234</div>
+          <div class="uri" id="uri">http://dj.dance/stream.m3u</div>
           <p class="hint">Tip: many players can just open <strong>dj.dance</strong> to auto-load the stream.</p>
         </div>
 
         <div>
-          <div class="qr"><img src="./qr.png" alt="QR for player apps (udp://@239.255.0.1:1234)"></div>
+          <div class="qr"><img src="./qr.png" alt="QR for player apps (dj.dance/stream.m3u"></div>
         </div>
       </div>
 
@@ -90,7 +90,7 @@
 
 <script>
 (function(){
-  const uri = 'udp://@239.255.0.1:1234';
+  const uri = 'http://dj.dance/stream.m3u';
   function isIOS(){ return /iphone|ipod|ipad/i.test(navigator.userAgent) }
   function isAndroid(){ return /android/i.test(navigator.userAgent) }
   function isMac(){ return /macintosh|mac os x/i.test(navigator.userAgent) && !isIOS() }

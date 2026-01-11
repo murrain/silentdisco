@@ -4,8 +4,9 @@ set -euo pipefail
 CACHE_TAR="cache/silentdisco-images.tar"
 CACHE_TARGZ="${CACHE_TAR}.gz"
 
-if docker compose config >/dev/null 2>&1; then :; else
-  echo "Run from the project root (where docker-compose.yml lives)."
+if ! docker compose config >/dev/null 2>&1; then
+  echo "ERROR: Cannot find docker-compose.yml or docker is not running"
+  echo "Run from the project root directory, or check that Docker is installed and running"
   exit 1
 fi
 
@@ -19,7 +20,9 @@ else
   elif [[ -f "$CACHE_TAR" ]]; then
     docker load -i "$CACHE_TAR"
   else
-    echo "Cache not found: $CACHE_TAR(.gz)"; exit 1
+    echo "ERROR: Cache not found at $CACHE_TAR or $CACHE_TARGZ"
+    echo "Run 'make save-cache-gz' first to create the image cache"
+    exit 1
   fi
 fi
 

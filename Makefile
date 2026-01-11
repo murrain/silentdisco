@@ -1,3 +1,8 @@
+# Variables for image caching
+CACHE_DIR := cache
+CACHE_FILE := $(CACHE_DIR)/silentdisco-images.tar
+IMAGES := silentdisco-web:offline silentdisco-streamer:offline
+
 .PHONY: help env sink up down logs rebuild clean
 
 help:

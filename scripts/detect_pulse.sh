@@ -24,8 +24,8 @@ fi
 
 if [[ -z "${SRC:-}" ]]; then
   echo "PULSE_SOURCE=" >> "${OUT_FILE}"
-  echo "Could not auto-detect a PulseAudio monitor source."
-  echo "Run scripts/setup_mixxx_sink.sh, then re-run: make env"
+  echo "WARNING: Could not auto-detect a PulseAudio monitor source."
+  echo "Run 'make sink' to create MixxxMaster sink, then re-run 'make env'"
 else
   echo "PULSE_SOURCE=${SRC}" >> "${OUT_FILE}"
   echo "Using PulseAudio source: ${SRC}"

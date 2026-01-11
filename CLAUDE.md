@@ -52,29 +52,48 @@ Client Media Players (VLC, mpv, etc.)
 ### Initial Setup
 
 ```bash
-# Create PulseAudio/PipeWire virtual sink and auto-detect audio source
-make sink        # Creates "MixxxMaster" sink
-make env         # Writes .env with detected PULSE_SOURCE
+make help        # Show all available Makefile targets
+make sink        # Create "MixxxMaster" virtual sink (persistent via systemd)
+make env         # Auto-detect UID and PULSE_SOURCE, write to .env
 
 # Edit .env to set PULSE_SOURCE manually if detection fails
 # or to configure UDPXY_HOST/UDPXY_PORT for your router
 ```
 
-### Running the System
+### Basic Operations
 
 ```bash
 make up          # Build images and start containers
-make down        # Stop containers
-make logs        # Follow container logs
-make rebuild     # Force rebuild images (no cache) and restart
+make down        # Stop containers (preserves images)
+make logs        # Follow container logs (tail -f)
+make rebuild     # Force rebuild (--no-cache) and restart
+make build       # Build images only (don't start)
 ```
 
-### Offline Deployment
+### Offline Deployment Workflow
+
+For events without internet access:
 
 ```bash
-make save-cache-gz                    # Build and save images to cache/silentdisco-images.tar.gz
-make up-offline                       # Load from cache and start (no build)
-# or: scripts/offline_boot.sh
+# On machine with internet (preparation):
+make save-cache       # Save images to cache/silentdisco-images.tar (~500MB)
+make save-cache-gz    # Save and gzip to cache/silentdisco-images.tar.gz (~200MB)
+
+# Transfer cache file to offline machine via USB/network, then:
+make load-cache       # Load images from cache (detects .gz or .tar automatically)
+make up-offline       # Check images exist, load cache if needed, start without build
+
+# Note: up-offline calls scripts/offline_boot.sh which handles the logic:
+# - Checks if images already loaded (skip load if present)
+# - Loads from cache/silentdisco-images.tar.gz or .tar if needed
+# - Starts containers with --no-build flag
+```
+
+### Cleanup
+
+```bash
+make clean-images    # Remove silentdisco-web:offline and silentdisco-streamer:offline images
+make clean           # Full cleanup: stop containers, remove images/volumes, delete .env
 ```
 
 ### Development
@@ -84,6 +103,7 @@ docker compose build                  # Build images only
 docker compose up -d                  # Start in detached mode
 docker compose logs -f streamer       # Follow logs for specific service
 docker compose exec web sh            # Shell into web container
+docker compose restart streamer       # Restart single service
 ```
 
 ## Configuration

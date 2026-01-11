@@ -130,21 +130,61 @@ UDPXY_PORT=4022                  # udpxy port
 | 256k | Excellent | ~256 kbps | Small events, strong WiFi |
 | 320k | Maximum | ~320 kbps | Audiophile, wired connections |
 
-## Useful Commands
+## Available Commands
+
+### Basic Operations
 
 ```bash
-# View logs
-make logs
+make help         # Show all available commands
+make sink         # Create MixxxMaster virtual audio sink
+make env          # Auto-detect configuration and create .env
+make up           # Build Docker images and start containers
+make down         # Stop containers
+make logs         # Follow logs from both containers
+make rebuild      # Force rebuild (no cache) and restart
+```
 
-# Stop everything
-make down
+### Development
 
-# Rebuild after code changes
-make rebuild
+```bash
+make build        # Build Docker images only (don't start)
+docker compose up -d             # Start containers in detached mode
+docker compose logs -f streamer  # Follow logs for specific service
+docker compose exec web sh       # Shell into web container
+```
 
-# Change configuration (after editing .env)
+### Offline Deployment
+
+For events without internet access:
+
+```bash
+# Prepare on machine with internet
+make save-cache       # Save images to cache/silentdisco-images.tar
+make save-cache-gz    # Save images to cache/silentdisco-images.tar.gz (compressed)
+
+# Transfer the cache file to offline machine, then:
+make load-cache       # Load images from cache (tar or tar.gz)
+make up-offline       # Load cache (if needed) and start containers without building
+```
+
+**Note**: `make up-offline` automatically checks if images exist, loads from cache if needed, then starts containers. It's the complete offline startup command.
+
+### Cleanup
+
+```bash
+make clean-images    # Remove silentdisco Docker images
+make clean           # Stop containers, remove images and volumes, delete .env
+```
+
+### Configuration Changes
+
+```bash
+# After editing .env
 make down
 make up
+
+# After editing source code
+make rebuild
 ```
 
 ## Troubleshooting
@@ -224,21 +264,6 @@ Run `make sink` to create the virtual audio sink, then `make env` to regenerate 
    ```bash
    ls /run/user/$(id -u)/pulse/native
    ```
-
-## Offline Deployment
-
-For events without internet access, you can pre-cache Docker images:
-
-```bash
-# On a machine with internet
-make save-cache-gz
-
-# Transfer cache/silentdisco-images.tar.gz to event location
-
-# On offline machine
-make load-cache
-make up-offline
-```
 
 ## Advanced Configuration
 

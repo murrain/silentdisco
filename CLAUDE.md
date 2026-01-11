@@ -98,6 +98,34 @@ All runtime configuration is in `.env`:
 - `UDPXY_HOST`: Router IP running udpxy (default: `192.168.8.1`)
 - `UDPXY_PORT`: udpxy port (default: `4022`)
 
+### Configuration Validation
+
+Both entrypoint scripts (`streamer/entrypoint.sh` and `web/entrypoint.sh`) include input validation:
+
+- **Multicast group validation**: Must be in range `224.0.0.0` to `239.255.255.255`. The system will exit with a clear error message if an invalid address is provided.
+- **Port validation**: Must be between 1 and 65535. Non-numeric or out-of-range values are rejected.
+- **PulseAudio source validation**: The streamer will exit if `PULSE_SOURCE` is not set, with instructions to run `make sink && make env`.
+
+### Bitrate Configuration
+
+Recommended bitrates based on use case:
+
+- **128k**: Large events (50+ users), weak WiFi, minimal bandwidth (~128 kbps per client)
+- **192k**: Standard quality, good balance (default) (~192 kbps per client)
+- **256k**: High quality for smaller events (~256 kbps per client)
+- **320k**: Maximum quality for audiophiles or wired connections (~320 kbps per client)
+
+Total network bandwidth required = bitrate × number of clients (for unicast/HTTP mode) or just the bitrate for multicast mode.
+
+### Network Configuration Details
+
+The system can operate in two network modes:
+
+1. **HTTP via udpxy (recommended)**: Router runs udpxy to proxy multicast to HTTP. Better WiFi compatibility, works with all clients, but requires router support.
+2. **Raw UDP multicast**: Direct multicast streaming. Lower overhead but requires multicast-capable network and client devices.
+
+The `LOCALADDR` variable is auto-detected by finding the default gateway and determining which local IP would be used to reach it. This works even without internet access. Falls back to `0.0.0.0` (all interfaces) if detection fails.
+
 ## Scripts
 
 - `scripts/detect_pulse.sh`: Generates `.env` with auto-detected PulseAudio source (prefers `MixxxMaster.monitor`)
@@ -119,6 +147,28 @@ The system expects clients to access `dj.dance`. Configure your router/DNS serve
 
 - Both containers must use `network_mode: host` for multicast to work properly
 - The streamer container runs as the host user (`user: "${UID}:${UID}"`) to access the PulseAudio socket at `/run/user/${UID}/pulse/native`
-- The system uses TTL=1 for multicast to keep traffic local
-- FFmpeg parameters in `streamer/entrypoint.sh` include buffer tuning (`fifo_size`, `pkt_size`) for reliable streaming
+- The system uses TTL=1 for multicast to keep traffic local (doesn't cross routers)
+- FFmpeg parameters in `streamer/entrypoint.sh` include buffer tuning for reliable streaming
 - The web entrypoint generates all playlists and QR codes at startup, not build time, so configuration changes only require restart
+
+## FFmpeg Streaming Parameters
+
+The multicast URI in `streamer/entrypoint.sh` includes several performance-tuning parameters:
+
+```bash
+udp://${GROUP}:${PORT}?localaddr=${LOCALADDR}&ttl=1&pkt_size=1316&reuse=1&overrun_nonfatal=1&fifo_size=500000
+```
+
+### Parameter Explanations
+
+- **localaddr=${LOCALADDR}**: Binds FFmpeg to a specific local IP address. Auto-detected by finding the default gateway and determining which interface would reach it. Falls back to `0.0.0.0` (all interfaces) if detection fails. Works without internet access.
+
+- **ttl=1**: Time-To-Live of 1 keeps multicast packets on the local network segment only. They won't cross routers, ensuring the stream stays local to the event WiFi. Increase to 2-3 if you need to cross VLANs, but keep it minimal to avoid network congestion.
+
+- **pkt_size=1316**: Optimal UDP packet size to avoid IP fragmentation. Standard Ethernet MTU is 1500 bytes. FFmpeg uses MPEG-TS with 7 × 188-byte packets = 1316 bytes, which fits perfectly within the MTU after accounting for IP/UDP headers. Fragmented packets cause significant performance degradation over WiFi.
+
+- **reuse=1**: Allows multiple processes to bind to the same multicast address and port. Useful for testing or running multiple receivers on the same machine.
+
+- **overrun_nonfatal=1**: Prevents FFmpeg from exiting if the output buffer overruns. Instead, it logs a warning and drops packets, which is preferable to crashing during live events.
+
+- **fifo_size=500000**: 500KB buffer (approximately 2-3 seconds at 192kbps bitrate). Handles network jitter and temporary congestion. Increase to 1000000 or higher if clients experience dropouts on congested networks. Decrease if latency is more critical than reliability.
